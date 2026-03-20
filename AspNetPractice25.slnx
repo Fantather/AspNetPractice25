@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="AspNetPractice25.Tests/AspNetPractice25.Tests.csproj" />
+  <Project Path="AspNetPractice25/AspNetPractice25.csproj" />
+</Solution>
