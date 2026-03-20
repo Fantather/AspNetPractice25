@@ -128,5 +128,86 @@ namespace AspNetPractice25.Tests
             Assert.Equal(35, model.Age);
             Assert.Equal(testUserId, model.Id);
         }
+        [Fact]
+        public void UpdateUserValidModelReturnsRedirectToAction()
+        {
+            // Arrange
+            var userServiceMock = new Mock<IUser>();
+            userServiceMock.Setup(x => x.UpdateUser(It.IsAny<User>())).Verifiable();
+            var controller = new HomeController(userServiceMock.Object);
+            var user = new User { Id = 1, Name = "TestUser" };
+
+            // Act
+            var result = controller.UpdateUser(user) as RedirectToActionResult;
+
+            // Assert
+            userServiceMock.Verify(x => x.UpdateUser(user), Times.Once);
+            Assert.NotNull(result);
+            Assert.Equal("Index", result.ActionName);
+        }
+
+        [Fact]
+        public void UpdateUserInvalidModelReturnsViewResult()
+        {
+            // Arrange
+            var userServiceMock = new Mock<IUser>();
+            var controller = new HomeController(userServiceMock.Object);
+            var user = new User { Id = 0, Name = "TestUser" };
+            controller.ModelState.AddModelError("Id", "Id is required");
+
+            // Act
+            var result = controller.UpdateUser(user) as ViewResult;
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(user, result.Model);
+        }
+
+        [Fact]
+        public void DeleteUserWithValidIdReturnsViewResult()
+        {
+            // Arrange
+            int userId = 1;
+            var mockUsersRepository = new Mock<IUser>();
+            mockUsersRepository.Setup(repo => repo.GetUser(userId)).Returns(new User { Id = userId });
+            var controller = new HomeController(mockUsersRepository.Object);
+
+            // Act
+            var result = controller.DeleteUser(userId);
+
+            // Assert
+            Assert.IsType<ViewResult>(result);
+        }
+
+        [Fact]
+        public void DeleteUserWithInvalidIdReturnsBadRequestResult()
+        {
+            // Arrange
+            int? userId = null;
+            var mockUsersRepository = new Mock<IUser>();
+            var controller = new HomeController(mockUsersRepository.Object);
+
+            // Act
+            var result = controller.DeleteUser(userId);
+
+            // Assert
+            Assert.IsType<BadRequestResult>(result);
+        }
+
+        [Fact]
+        public void DeleteUserWithNonExistingUserReturnsNotFoundResult()
+        {
+            // Arrange
+            int userId = 1;
+            var mockUsersRepository = new Mock<IUser>();
+            mockUsersRepository.Setup(repo => repo.GetUser(userId)).Returns((User)null);
+            var controller = new HomeController(mockUsersRepository.Object);
+
+            // Act
+            var result = controller.DeleteUser(userId);
+
+            // Assert
+            Assert.IsType<NotFoundResult>(result);
+        }
     }
 }

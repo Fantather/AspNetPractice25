@@ -7,5 +7,8 @@ namespace AspNetPractice25
         IEnumerable<User> GetAllUsers();
         User GetUser(int id);
         void AddUser(User user);
+        void DeleteUser(User user);
+        void UpdateUser(User user);
+
     }
 }

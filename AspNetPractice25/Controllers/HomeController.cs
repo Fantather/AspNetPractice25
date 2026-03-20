@@ -47,5 +47,36 @@ namespace AspNetPractice25.Controllers
             }
             return View(user);
         }
+
+        [HttpPost]
+        public IActionResult UpdateUser(User user)
+        {
+            if (ModelState.IsValid)
+            {
+                if (user.Id <= 0)
+                {
+                    return BadRequest();
+                }
+                _users.UpdateUser(user);
+                return RedirectToAction(nameof(Index));
+            }
+            return View(user);
+        }
+
+        [HttpPost]
+        public IActionResult DeleteUser(int? id)
+        {
+            if (!id.HasValue)
+            {
+                return BadRequest();
+            }
+            User user = _users.GetUser(id.Value);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            _users.DeleteUser(user);
+            return View(user);
+        }
     }
 }
